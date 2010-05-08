@@ -5,7 +5,7 @@ import cPickle
 
 from view_port import ViewPort
 from grid import Grid
-from mover import RandomMover
+from mover import RandomMover, Hider, Seeker
 from terrain import TerrainData
 from terrain.generators import MeteorTerrainGenerator, Smoother
 from terrain.generators import PlasmaFractalGenerator
@@ -91,7 +91,10 @@ class Game:
 
     def move_movers(self):
         for mover in self.movers:
-            mover.move()
+            if isinstance(mover, Hider) or isinstance(mover, Seeker):
+                mover.move(self.movers)
+            else:
+                mover.move()
 
     def display_movers(self):
         for mover in self.movers:
@@ -130,10 +133,16 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     loc = self.view.screen2grid(event.pos)
-                    if event.button == 1: # Add mover
+                    if event.button == 1: # Add RandomMover
                         rm = RandomMover(self.gameGrid, loc)
                         self.movers.append(rm)
-                    if event.button == 3: # Remove mover
+                    elif event.button == 4: # Add Hider
+                        h = Hider(self.gameGrid, loc)
+                        self.movers.append(h)
+                    elif event.button == 5: # Add Seeker
+                        s = Seeker(self.gameGrid, loc)
+                        self.movers.append(s)                         
+                    elif event.button == 3: # Remove mover  
                         for mover in self.movers:
                             if mover.get_location() == loc:
                                 self.movers.remove(mover)
