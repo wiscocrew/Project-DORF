@@ -15,3 +15,6 @@ class Node:
 
     def __hash__(self):
         return hash(self.location)
+
+    def get_location(self):
+        return self.location
