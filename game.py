@@ -17,6 +17,7 @@ class Game:
         self.resolution = self.width, self.height = 800, 600
         self.gridSize = self.xGrid, self.yGrid = 320, 240
         self.movers = []
+        self.moverType = "RandomMover"
         self._fontFile = pygame.font.match_font('freemono')
         self._fontSize = 14
 
@@ -81,7 +82,7 @@ class Game:
             self.frame = 0
 
         text = self.font.render(str(self.view) +
-                " FPS:{0}".format(self.fps), 1, (0, 255, 0))
+                " FPS:{0} ".format(self.fps) + self.moverType, 1, (0, 255, 0))
         rect = text.get_rect()
         rect.x, rect.y = (0,0)
         self.screen.blit(text, rect)
@@ -120,12 +121,21 @@ class Game:
         self.update_terrain_surf()
         print "done loading"
 
+    def rotate_mover_type(self):
+        if self.moverType == "RandomMover":
+            self.moverType = "Hider"
+        elif self.moverType == "Hider":
+            self.moverType = "Seeker"
+        elif self.moverType == "Seeker":
+            self.moverType = "RandomMover"
+
     def execute(self):
         self.time = time.time()
         self.frame = 0
         self.fps = 0
         self.update_display()
         self.autoMovers = False
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -133,15 +143,16 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     loc = self.view.screen2grid(event.pos)
-                    if event.button == 1: # Add RandomMover
-                        rm = RandomMover(self.gameGrid, loc)
-                        self.movers.append(rm)
-                    elif event.button == 4: # Add Hider
-                        h = Hider(self.gameGrid, loc)
-                        self.movers.append(h)
-                    elif event.button == 5: # Add Seeker
-                        s = Seeker(self.gameGrid, loc)
-                        self.movers.append(s)                         
+                    if event.button == 1:
+                        if self.moverType == "RandomMover": # Add RandomMover
+                            rm = RandomMover(self.gameGrid, loc)
+                            self.movers.append(rm)
+                        elif self.moverType == "Hider": # Add Hider
+                            h = Hider(self.gameGrid, loc)
+                            self.movers.append(h)
+                        elif self.moverType == "Seeker": # Add Seeker
+                            s = Seeker(self.gameGrid, loc)
+                            self.movers.append(s)                         
                     elif event.button == 3: # Remove mover  
                         for mover in self.movers:
                             if mover.get_location() == loc:
@@ -174,6 +185,8 @@ class Game:
                         self.save_grid()
                     if event.key == pygame.K_l:
                         self.load_grid()
+                    if event.key == pygame.K_LCTRL:
+                        self.rotate_mover_type()
 
             if self.autoMovers: self.move_movers()
             self.update_display()
