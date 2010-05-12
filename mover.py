@@ -1,5 +1,4 @@
-import random
-from math import sqrt
+import random, math
 
 class Mover(object):
     """ A renderable object with a location, color, and movement method. """
@@ -20,7 +19,7 @@ class Mover(object):
     def get_distance(self, loc1, loc2):
         """ Returns the distance between 2 locations. """
 
-        distance = sqrt((loc1[0]-loc2[0])**2 + (loc1[1]-loc2[1])**2 +
+        distance = math.sqrt((loc1[0]-loc2[0])**2 + (loc1[1]-loc2[1])**2 +
                         (loc1[2]-loc2[2])**2)
         return distance
 
@@ -45,16 +44,18 @@ class Mover(object):
         # find escape square
         furthestsofar = self.get_distance(mynode.get_location(), 
                                           closestseeker.get_location())
-        furthestescape = mynode
+        furthestescapes = [mynode]
 
         for n in neighbors:
             currentdistance = self.get_distance(n.get_location(),
                                                 closestseeker.get_location())
             if currentdistance > furthestsofar:
                 furthestsofar = currentdistance
-                furthestescape = n
+                furthestescapes = [n]
+            elif currentdistance == furthestsofar:
+                furthestescapes.append(n)
 
-        return furthestescape
+        return random.choice(furthestescapes)
 
     def seek(self, mynode, neighbors, hiders):
         """ Finds node closest to closest hider. """
@@ -77,16 +78,18 @@ class Mover(object):
         # find chase node
         nearestsofar = self.get_distance(mynode.get_location(), 
                                          closesthider.get_location())
-        chasenode = mynode
+        chasenodes = [mynode]
 
         for n in neighbors:
             currentdistance = self.get_distance(n.get_location(),
                                                 closesthider.get_location())
             if currentdistance < nearestsofar:
                 nearestsofar = currentdistance
-                chasenode = n
+                chasenodes = [n]
+            elif currentdistance == nearestsofar:
+                chasenodes.append(n)
 
-        return chasenode    
+        return random.choice(chasenodes)
         
 
 class RandomMover(Mover):
